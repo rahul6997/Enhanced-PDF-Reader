@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Enhanced eBook Readability with Gaze Tracking</title>
+        <script src="https://api.gazerecorder.com/GazeCloudAPI.js"></script>
+        <style>
+            body {
+                overflow: hidden;
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+            #content {
+                height: 90vh;
+                overflow-y: scroll;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .highlight {
+                background-color: yellow;
+            }
+        </style>
+        <script type="text/javascript">
+            var lastScrollY = 0;
+            var highlightedElement = null;
+
+            function handleGazeData(GazeData) {
+                if (GazeData.state === 0) { // Only proceed if we have valid gaze data
+                    let docX = GazeData.docX;
+                    let docY = GazeData.docY;
+
+                    // Automatic scrolling
+                    autoScroll(docY);
+
+                    // Highlight text where gaze is detected
+                    highlightText(docX, docY);
+                }
+            }
+
+            function autoScroll(docY) {
+                const content = document.getElementById('content');
+                const threshold = window.innerHeight * 0.1;
+                const bottomThreshold = window.innerHeight - threshold;
+
+                if (docY < threshold && lastScrollY > 0) {
+                    content.scrollTop -= 5; // Scroll up
+                } else if (docY > bottomThreshold && lastScrollY < content.scrollHeight) {
+                    content.scrollTop += 5; // Scroll down
+                }
+
+                lastScrollY = content.scrollTop;
+            }
+
+            function highlightText(docX, docY) {
+                if (highlightedElement) {
+                    highlightedElement.classList.remove('highlight');
+                }
+                const element = document.elementFromPoint(docX, docY);
+                if (element) {
+                    element.classList.add('highlight');
+                    highlightedElement = element;
+                }
+            }
+
+            window.addEventListener("load", function() {
+                GazeCloudAPI.OnCalibrationComplete = function() { console.log('Gaze Calibration Complete'); }
+                GazeCloudAPI.OnCamDenied = function() { console.log('Camera access denied'); }
+                GazeCloudAPI.OnError = function(msg) { console.log('Error: ' + msg); }
+                GazeCloudAPI.UseClickRecalibration = false;
+                GazeCloudAPI.OnResult = handleGazeData;
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Enhanced eBook Readability</h1>
+        <button type="button" onclick="GazeCloudAPI.StartEyeTracking();">Start Eye Tracking</button>
+        <button type="button" onclick="GazeCloudAPI.StopEyeTracking();">Stop Eye Tracking</button>
+        <div id="content">
+            <p>Here is a sample text content for your eBook or PDF. It will scroll automatically as you gaze towards the bottom or top of the screen. The text under your gaze will be highlighted to enhance readability.</p>
+            <!-- Include more paragraphs as required -->
+        </div>
+    </body>
+</html>
