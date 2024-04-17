@@ -42,9 +42,9 @@
                 const bottomThreshold = window.innerHeight - threshold;
 
                 if (docY < threshold && lastScrollY > 0) {
-                    content.scrollTop -= 5; // Scroll up
+                    content.scrollTop -= 10; // Scroll up
                 } else if (docY > bottomThreshold && lastScrollY < content.scrollHeight) {
-                    content.scrollTop += 5; // Scroll down
+                    content.scrollTop += 10; // Scroll down
                 }
 
                 lastScrollY = content.scrollTop;
@@ -124,6 +124,7 @@
             <p>[1] Ramsha Fatima, Atiya Usmani, and Zainab Zaheer. Eye movement based human computer interaction. In 2016 3rd International Conference on Recent Advances in Information Technology (RAIT), pages 489–494, 2016.</p>
             <p>[2] Asier Lopez-Basterretxea, Amaia Mendez-Zorrilla, and Begona Garcia-Zapirain. Eye/head tracking technology to improve hci with ipad applications. Sensors, 15(2):2244–2264, 2015.</p>
             <p>[3] Anjie Zhu, Qianjing Wei, Yilin Hu, Zhangwei Zhang, and Shiwei Cheng. MobiET: A new approach to eye tracking for mobile device. In 2018 ACM International Joint Conference and 2018 International Symposium, pages 862–869, 2018.</p>
+
         </div>
     </body>
 </html>
