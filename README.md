@@ -1,6 +1,6 @@
 # Enhanced eBook Readability with Gaze Tracking
 
-This repository hosts the code for an innovative application aimed at enhancing the readability of eBooks and PDFs through the use of eye and head-tracking technologies. The project is designed to create a more natural and engaging reading environment by adapting to the reader's behavior and preferences in real-time.
+Here is the code for an innovative application aimed at enhancing the readability of eBooks and PDFs through the use of eye and head-tracking technologies. The project is designed to create a more natural and engaging reading environment by adapting to the reader's behaviour and preferences in real time.
 
 ## Features
 
