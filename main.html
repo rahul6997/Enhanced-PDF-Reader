@@ -1,81 +1,136 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <title>Enhanced eBook Readability with Gaze Tracking</title>
-        <script src="https://api.gazerecorder.com/GazeCloudAPI.js"></script>
-        <style>
-            body {
-                overflow: hidden;
-                margin: 0;
-                font-family: Arial, sans-serif;
+<head>
+    <title>Enhanced eBook Readability with Gaze Tracking</title>
+    <script src="https://api.gazerecorder.com/GazeCloudAPI.js"></script>
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        #content {
+            height: 90vh;
+            overflow-y: scroll;
+            padding: 20px;
+            box-sizing: border-box;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h3, h4 {
+            color: #555;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+        }
+        p {
+            line-height: 1.6;
+            color: #333;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            border: 2px solid #ffca28;
+            transition: background-color 0.5s;
+        }
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 5px;
+            background-color: #4caf50;
+            z-index: 1000;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: white;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script type="text/javascript">
+        var lastScrollY = 0;
+        var highlightedElement = null;
+
+        function handleGazeData(GazeData) {
+            if (GazeData.state === 0) { // Only proceed if we have valid gaze data
+                let docX = GazeData.docX;
+                let docY = GazeData.docY;
+
+                // Automatic scrolling
+                autoScroll(docY);
+
+                // Highlight text where gaze is detected
+                highlightText(docX, docY);
             }
-            #content {
-                height: 90vh;
-                overflow-y: scroll;
-                padding: 20px;
-                box-sizing: border-box;
-            }
-            .highlight {
-                background-color: yellow;
-            }
-        </style>
-        <script type="text/javascript">
-            var lastScrollY = 0;
-            var highlightedElement = null;
+        }
 
-            function handleGazeData(GazeData) {
-                if (GazeData.state === 0) { // Only proceed if we have valid gaze data
-                    let docX = GazeData.docX;
-                    let docY = GazeData.docY;
+        function autoScroll(docY) {
+            const content = document.getElementById('content');
+            const threshold = window.innerHeight * 0.1;
+            const bottomThreshold = window.innerHeight - threshold;
 
-                    // Automatic scrolling
-                    autoScroll(docY);
-
-                    // Highlight text where gaze is detected
-                    highlightText(docX, docY);
-                }
+            if (docY < threshold && lastScrollY > 0) {
+                content.scrollTop -= 20; // Scroll up
+            } else if (docY > bottomThreshold && lastScrollY < content.scrollHeight) {
+                content.scrollTop += 20; // Scroll down
             }
 
-            function autoScroll(docY) {
-                const content = document.getElementById('content');
-                const threshold = window.innerHeight * 0.1;
-                const bottomThreshold = window.innerHeight - threshold;
+            lastScrollY = content.scrollTop;
+            updateScrollIndicator();
+        }
 
-                if (docY < threshold && lastScrollY > 0) {
-                    content.scrollTop -= 10; // Scroll up
-                } else if (docY > bottomThreshold && lastScrollY < content.scrollHeight) {
-                    content.scrollTop += 10; // Scroll down
-                }
-
-                lastScrollY = content.scrollTop;
+        function highlightText(docX, docY) {
+            if (highlightedElement) {
+                highlightedElement.classList.remove('highlight');
             }
-
-            function highlightText(docX, docY) {
-                if (highlightedElement) {
-                    highlightedElement.classList.remove('highlight');
-                }
-                const element = document.elementFromPoint(docX, docY);
-                if (element) {
-                    element.classList.add('highlight');
-                    highlightedElement = element;
-                }
+            const element = document.elementFromPoint(docX, docY);
+            if (element) {
+                element.classList.add('highlight');
+                highlightedElement = element;
             }
+        }
 
-            window.addEventListener("load", function() {
-                GazeCloudAPI.OnCalibrationComplete = function() { console.log('Gaze Calibration Complete'); }
-                GazeCloudAPI.OnCamDenied = function() { console.log('Camera access denied'); }
-                GazeCloudAPI.OnError = function(msg) { console.log('Error: ' + msg); }
-                GazeCloudAPI.UseClickRecalibration = false;
-                GazeCloudAPI.OnResult = handleGazeData;
-            });
-        </script>
-    </head>
-    <body>
-        <h1>Enhanced eBook Readability</h1>
-        <button type="button" onclick="GazeCloudAPI.StartEyeTracking();">Start Eye Tracking</button>
-        <button type="button" onclick="GazeCloudAPI.StopEyeTracking();">Stop Eye Tracking</button>
-        <div id="content">
-            <h1>Peek A Boo: Enhancing Readability with Eye and Head Tracking</h1>
+        function updateScrollIndicator() {
+            const content = document.getElementById('content');
+            const indicator = document.getElementById('scroll-indicator');
+            const scrollPercentage = (content.scrollTop / (content.scrollHeight - content.clientHeight)) * 100;
+            indicator.style.width = scrollPercentage + '%';
+        }
+
+        window.addEventListener("load", function() {
+            GazeCloudAPI.OnCalibrationComplete = function() { console.log('Gaze Calibration Complete'); }
+            GazeCloudAPI.OnCamDenied = function() { console.log('Camera access denied'); }
+            GazeCloudAPI.OnError = function(msg) { console.log('Error: ' + msg); }
+            GazeCloudAPI.UseClickRecalibration = false;
+            GazeCloudAPI.OnResult = handleGazeData;
+
+            const content = document.getElementById('content');
+            content.addEventListener('scroll', updateScrollIndicator);
+        });
+    </script>
+</head>
+<body>
+    <div class="scroll-indicator" id="scroll-indicator"></div>
+    <h1>Enhanced eBook Readability</h1>
+    <button type="button" onclick="GazeCloudAPI.StartEyeTracking();">Start Eye Tracking</button>
+    <button type="button" onclick="GazeCloudAPI.StopEyeTracking();">Stop Eye Tracking</button>
+    <div id="content">
+        <h1>Peek A Boo: Enhancing Readability with Eye and Head Tracking</h1>
             <h3>1. Research Question</h3>
             <p>How can we improve the readability of e-books and PDFs, and what additional advancements in technology can be leveraged to further improve the reading experience?</p>
             <h3>2. Abstract</h3>
@@ -126,5 +181,6 @@
             <p>[3] Anjie Zhu, Qianjing Wei, Yilin Hu, Zhangwei Zhang, and Shiwei Cheng. MobiET: A new approach to eye tracking for mobile device. In 2018 ACM International Joint Conference and 2018 International Symposium, pages 862–869, 2018.</p>
 
         </div>
-    </body>
+    </div>
+</body>
 </html>
